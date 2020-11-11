@@ -1,6 +1,6 @@
 defmodule ReplayNginxLogs.Request do
   use Tesla
-  adapter Tesla.Adapter.Hackney
+  adapter Tesla.Adapter.Hackney, max_connections: 10
 
   # plug Tesla.Middleware.BaseUrl, "http://localhost:3000"
   plug Tesla.Middleware.BaseUrl, "https://app.underline.io"
@@ -24,6 +24,7 @@ defmodule ReplayNginxLogs.Request do
   def update(path) do
     cond do
       String.starts_with?(path, "/api/v1/lectures") -> update_lecture(path)
+      String.starts_with?(path, "/api/v1/lecture_statuses") -> update_lecture_status(path)
       true -> {:skip}
     end
   end
@@ -33,5 +34,12 @@ defmodule ReplayNginxLogs.Request do
     active_stream = !(state[:lectures][path] || false)
     GenServer.cast(ReplayNginxLogs.Data, {:lectures, path, active_stream})
     patch(path, "{\"data\": {\"type\": \"lectures\", \"attributes\": {\"active_stream\": #{active_stream}}}}")
+  end
+
+  def update_lecture_status(path) do
+    state = GenServer.call(ReplayNginxLogs.Data, :state)
+    active_stream = !(state[:lectures][path] || false)
+    GenServer.cast(ReplayNginxLogs.Data, {:lectures, path, active_stream})
+    patch(path, "{\"data\": {\"type\": \"lecture_statuses\", \"attributes\": {\"active_stream\": #{active_stream}}}}")
   end
 end
