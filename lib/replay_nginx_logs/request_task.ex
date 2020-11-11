@@ -26,6 +26,10 @@ defmodule ReplayNginxLogs.RequestTask do
 
       {:error, :timeout} ->
         GenServer.cast(ReplayNginxLogs.Data, :error)
+      {:error, :checkout_timeout} ->
+        GenServer.cast(ReplayNginxLogs.Data, :error)
+      {:error, :queue_timeout} ->
+        GenServer.cast(ReplayNginxLogs.Data, :error)
 
       {:error, response} ->
         GenServer.cast(ReplayNginxLogs.Data, :error)
