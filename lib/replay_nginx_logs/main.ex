@@ -59,6 +59,15 @@ defmodule ReplayNginxLogs.Main do
 
     GenServer.start_link(ReplayNginxLogs.RequestTask, {line_delay - server_delay + @delay, line})
     GenServer.cast(ReplayNginxLogs.Data, :count)
+
+    case System.fetch_env("GUI") do
+      {:ok, _} ->
+        nil
+
+      :error ->
+        if rem(data[:count], 1000) == 0, do: IO.inspect({line["timestamp"], data[:count]})
+    end
+
     state
   end
 end

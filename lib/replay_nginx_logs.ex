@@ -8,11 +8,21 @@ defmodule ReplayNginxLogs do
       name: Ratatouille.Runtime
     ]
 
-    children = [
-      {Ratatouille.Runtime.Supervisor, runtime: runtime_opts},
-      {ReplayNginxLogs.Main, name: ReplayNginxLogs.Main},
-      {ReplayNginxLogs.Data, name: ReplayNginxLogs.Data},
-    ]
+    children = 
+      case System.fetch_env("GUI") do 
+        {:ok, _} ->
+          [
+            {Ratatouille.Runtime.Supervisor, runtime: runtime_opts},
+            {ReplayNginxLogs.Main, name: ReplayNginxLogs.Main},
+            {ReplayNginxLogs.Data, name: ReplayNginxLogs.Data},
+          ]
+        :error ->
+          [
+            {ReplayNginxLogs.Main, name: ReplayNginxLogs.Main},
+            {ReplayNginxLogs.Data, name: ReplayNginxLogs.Data},
+          ]
+      end
+
 
     # :observer.start()
     Supervisor.start_link(
